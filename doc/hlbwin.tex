@@ -1,0 +1,62 @@
+\documentclass{article}
+\author{Scott Cotton\\
+IRI France SAS\\
+wsc@iri-labs.com}
+\title{Windowing The Hilbert Transform}
+\begin{document}
+\maketitle
+\abstract{
+The Hilbert transform provides a method for rotating a signal
+$90^{\circ}$ in all frequencies.  This transform is useful for
+envelope tracking and decomposition of a signal into a single
+amplitude and frequency modulated wave.  Hilbert transforms are
+simple to implement via the Fourier transform, with one exception: 
+the edge effects.  
+
+In this document, we present a simple windowing method for constructing
+a Hilbert transformed signal smoothly from a series of fast Fourier transforms
+FFTs.  Traditional windowing methods modulate the edge effects, spreading them
+out (albeit smoothly).  The windowing method presented here gives better results than 
+FIR filtering and traditional windowing, and moreover provides a solid basis
+for signal representation by instantaneous frequency/amplitude modulation, as
+phase differences and amplitude envelope are by construction coherent accross block 
+boundaries.
+}
+
+\section{Introduction}
+The Hilbert transform is a Fourier based transform which can be seen as a 
+filter of "negative" frequencies or, alternatively, a method of producing 
+an all-pass, phase altered signal in which each frequency in the frequency
+domain is rotated by $\frac{\pi}{2}$, a quarter cycle.  Such a rotation 
+puts a signal in {\em quadrature}, making it easy to represent in terms of 
+amplitude and phase.  Hilbert transforms are usually applied in narrow band
+contexts because of analytic difficulties of understanding the meaning of
+instaneous frequency in a wide band context.  However, Hilbert transforms also
+provide a nice way of defining the envelope of any signal, be it narrow or
+wide band.
+
+In wide band contexts, the problem of applying a Hilbert transform is made 
+particularly difficult because of edge effects.  A narrow band Hilbert transform
+can be much more readily constructed as either a FIR or IIR filter.
+
+\section{Eye based Windowing}
+The idea presented here is remarkably simple and effective.  We forego any 
+idea of windowing functions, such as the Hamming or Blackman windows, and
+instead we simply implement a Hilbert transform by 
+\begin{enumerate}
+	\item Using a sufficiently large FFT, let's call this $L$.
+	\item Using a hop size $H$ small enough ($H < L$)so that centering
+		$H$ in $L$ removes edge effects.
+	\item If necessary, padding the input signal so that advancing it 
+	by $H$ samples at a time will center $H$ samples in $L$.
+\end{enumerate}
+
+What is perhaps unusual here, is that we do not need, nor do we {\em want}
+to restrict the FFT to the data being analyzed.  Instead, in the context 
+of using a Hilbert transform, we desire continuity of the amplitude envelope
+and phase differences, which an only really be achieved for a segment of a 
+signal with both preceding and succeeding context.
+
+
+\section{}
+\end{document}
