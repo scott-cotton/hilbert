@@ -3,7 +3,7 @@ package hilbert
 import (
 	"math"
 
-	"github.com/irifrance/snd"
+	snd "zikichombo.org/sound"
 )
 
 type pad struct {
@@ -18,7 +18,7 @@ func (p *pad) Samples(dst []float64) (int, error) {
 		i++
 	}
 	p.n -= i
-	n, err := p.Source.Samples(dst[i:])
+	n, err := p.Source.Receive(dst[i:])
 	if err != nil {
 		return 0, err
 	}
@@ -37,7 +37,7 @@ func (d *discard) PutSamples(vs []float64) error {
 	}
 	n := d.n
 	d.n = 0
-	return d.Sink.PutSamples(vs[n:])
+	return d.Sink.Send(vs[n:])
 }
 
 func princVal(v float64) float64 {

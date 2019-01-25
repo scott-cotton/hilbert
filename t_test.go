@@ -5,20 +5,29 @@ import (
 	"math"
 	"testing"
 
-	"github.com/irifrance/snd"
-	"github.com/irifrance/snd/freq"
+	snd "zikichombo.org/sound"
+	"zikichombo.org/sound/freq"
 )
 
 type sgen struct {
 	rps float64
 	ph  float64
+	sr  freq.T
+}
+
+func (s *sgen) Channels() int {
+	return 1
+}
+
+func (s *sgen) Close() error {
+	return nil
 }
 
 func newSinGen(fa, fs freq.T) snd.Source {
-	return &sgen{ph: 0.0, rps: fs.RadsPer(fa)}
+	return &sgen{sr: fs, ph: 0.0, rps: fs.RadsPer(fa)}
 }
 
-func (s *sgen) Samples(dst []float64) (int, error) {
+func (s *sgen) Receive(dst []float64) (int, error) {
 	ph, rps := s.ph, s.rps
 	for i := range dst {
 		dst[i] = math.Sin(ph)
@@ -26,6 +35,10 @@ func (s *sgen) Samples(dst []float64) (int, error) {
 	}
 	s.ph = ph
 	return len(dst), nil
+}
+
+func (s *sgen) SampleRate() freq.T {
+	return s.sr
 }
 
 func TestT(t *testing.T) {
@@ -38,7 +51,8 @@ func testTSin(fa freq.T, t *testing.T) {
 	N := 2048
 	Q := 8
 	hlb := New(snd.Discard, src, N, Q)
-	for err == nil {
+
+	for n := 0; n < 100 && err == nil; n++ {
 		err = hlb.Process()
 		org, rot := hlb.Org(), hlb.Rotated()
 		fmt.Printf("block:\n")

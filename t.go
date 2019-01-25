@@ -1,8 +1,8 @@
 package hilbert
 
 import (
-	"github.com/irifrance/audio/fft"
-	"github.com/irifrance/snd"
+	"zikichombo.org/dsp/fft"
+	snd "zikichombo.org/sound"
 )
 
 // Type T implements a Processor for the Hilbert
@@ -39,7 +39,7 @@ func New(dst snd.Sink, src snd.Source, n, q int) *T {
 	}
 	m := n * q
 	res := &T{}
-	res.ft = fft.New(m, false)
+	res.ft = fft.New(m)
 	res.ftBuf = res.ft.Win(nil)
 	res.inBuf = make([]float64, m)
 	res.oBuf = make([]float64, n)
@@ -80,7 +80,7 @@ func (t *T) Rotated() []float64 {
 func (t *T) Process() error {
 	copy(t.inBuf, t.inBuf[t.n:])
 	newStart := len(t.inBuf) - t.n
-	n, e := t.src.Samples(t.inBuf[newStart:])
+	n, e := t.src.Receive(t.inBuf[newStart:])
 	if e != nil {
 		return e
 	}
@@ -92,10 +92,10 @@ func (t *T) Process() error {
 	}
 	t.ft.Do(t.ftBuf)
 	rotate(t.ftBuf)
-	t.ft.Inv().Do(t.ftBuf)
+	t.ft.Inv(t.ftBuf)
 	ii := t.ii
 	for i := 0; i < t.n; i++ {
 		t.oBuf[i] = real(t.ftBuf[ii+i])
 	}
-	return t.snk.PutSamples(t.oBuf)
+	return t.snk.Send(t.oBuf)
 }
