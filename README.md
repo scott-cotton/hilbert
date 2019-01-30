@@ -1,5 +1,7 @@
 # Faithful Hilbert Transform
 
+[![DOI](https://zenodo.org/badge/167553884.svg)](https://zenodo.org/badge/latestdoi/167553884)
+
 This repository implements the "hilbert transform" on a sound data stream in a faithful manner.
 The Hilbert transform is a phase shift in the frequency domain of all frequencies by 90 degrees.
 
